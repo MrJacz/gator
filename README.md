@@ -216,6 +216,85 @@ The TUI provides an interactive interface for browsing posts with keyboard navig
 
 The TUI displays the 20 most recent posts and allows you to navigate through them, view full details, and open articles in your browser with a single keypress.
 
+### HTTP API Server
+
+**Start the HTTP API server:**
+```bash
+gator server [port]
+```
+
+Examples:
+```bash
+gator server        # Starts server on port 8080 (default)
+gator server 3000   # Starts server on port 3000
+```
+
+The HTTP API provides RESTful endpoints for remote access with JWT authentication:
+
+#### Public Endpoints
+- `GET /health` - Health check
+- `POST /api/users` - Create a new user
+- `POST /api/login` - Login and receive JWT token
+- `GET /api/users` - List all users
+- `GET /api/users/{username}` - Get user by username
+
+#### Protected Endpoints (require Bearer token)
+
+**Authentication:**
+All protected endpoints require an `Authorization: Bearer <token>` header. Get your token by logging in:
+
+```bash
+curl -X POST http://localhost:8080/api/login \
+  -H "Content-Type: application/json" \
+  -d '{"name":"your_username"}'
+```
+
+**Feeds:**
+- `POST /api/feeds` - Create a new feed
+- `GET /api/feeds` - List all feeds
+- `POST /api/feed_follows` - Follow a feed
+- `GET /api/feed_follows` - List your followed feeds
+- `DELETE /api/feed_follows/{url}` - Unfollow a feed
+
+**Posts:**
+- `GET /api/posts?limit=20&offset=0` - Get posts with pagination
+- `GET /api/posts/search?q=golang&limit=10` - Search posts
+
+**Bookmarks:**
+- `POST /api/bookmarks` - Create a bookmark
+- `GET /api/bookmarks?limit=10` - List your bookmarks
+- `DELETE /api/bookmarks/{url}` - Delete a bookmark
+
+#### Example API Usage
+
+```bash
+# Login and get token
+TOKEN=$(curl -s -X POST http://localhost:8080/api/login \
+  -H "Content-Type: application/json" \
+  -d '{"name":"alice"}' | jq -r '.token')
+
+# Get posts
+curl http://localhost:8080/api/posts?limit=5 \
+  -H "Authorization: Bearer $TOKEN"
+
+# Search posts
+curl "http://localhost:8080/api/posts/search?q=golang&limit=10" \
+  -H "Authorization: Bearer $TOKEN"
+
+# Create a bookmark
+curl -X POST http://localhost:8080/api/bookmarks \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"post_url":"https://example.com/post"}'
+```
+
+**Production Setup:**
+Set the `JWT_SECRET` environment variable for production use:
+```bash
+export JWT_SECRET="your-secret-key-here"
+gator server
+```
+
 ## Example Workflow
 
 ```bash
@@ -245,6 +324,8 @@ gator browse 5
 - ✅ Full-text search across post titles and descriptions
 - ✅ Bookmark posts for later reading
 - ✅ Interactive TUI with keyboard navigation and browser integration
+- ✅ RESTful HTTP API with JWT authentication
+- ✅ Remote access via API endpoints
 - ✅ PostgreSQL database for persistent storage
 
 ## Technologies Used
@@ -255,6 +336,8 @@ gator browse 5
 - **goose** - Database migrations
 - **Bubbletea** - Terminal UI framework
 - **Lipgloss** - Terminal styling
+- **Gorilla Mux** - HTTP routing
+- **JWT** - Token-based authentication
 - **RSS/Atom** - Feed parsing
 
 ## License
