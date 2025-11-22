@@ -19,3 +19,17 @@ WHERE feeds.user_id = $1
 ORDER BY posts.published_at DESC
 LIMIT $2;
 
+-- name: GetPostsForUserByFeed :many
+SELECT posts.* FROM posts
+JOIN feeds ON posts.feed_id = feeds.id
+WHERE feeds.user_id = $1 AND feeds.url = $2
+ORDER BY posts.published_at DESC
+LIMIT $3;
+
+-- name: GetPostsForUserSortedByTitle :many
+SELECT posts.* FROM posts
+JOIN feeds ON posts.feed_id = feeds.id
+WHERE feeds.user_id = $1
+ORDER BY posts.title ASC
+LIMIT $2;
+

@@ -145,13 +145,16 @@ The aggregator will continuously fetch posts from all feeds. Press `Ctrl+C` to s
 
 **View recent posts:**
 ```bash
-gator browse [limit]
+gator browse [limit] [--sort=date|title] [--feed=feed_url]
 ```
 
 Examples:
 ```bash
-gator browse      # Shows 2 most recent posts (default)
-gator browse 10   # Shows 10 most recent posts
+gator browse                                      # Shows 2 most recent posts (default)
+gator browse 10                                   # Shows 10 most recent posts
+gator browse 5 --sort=title                       # Shows 5 posts sorted alphabetically by title
+gator browse 10 --feed="https://hnrss.org/newest" # Shows 10 posts from specific feed
+gator browse 5 --sort=title --feed="https://blog.boot.dev/index.xml"  # Combine filters
 ```
 
 Posts are displayed with their title, URL, publication date, and description.
@@ -181,7 +184,7 @@ gator browse 5
 - ✅ Automatic feed aggregation with configurable intervals
 - ✅ Duplicate post detection
 - ✅ Robust date parsing for various RSS formats
-- ✅ Browse posts sorted by publication date
+- ✅ Browse posts with sorting (by date or title) and filtering (by feed)
 - ✅ PostgreSQL database for persistent storage
 
 ## Technologies Used
