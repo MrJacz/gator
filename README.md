@@ -179,6 +179,25 @@ gator search "API design" 5     # Search for posts about "API design", show 5 re
 
 The search command performs case-insensitive searches across both post titles and descriptions, and displays matching posts with context snippets.
 
+### Bookmark Posts
+
+**Save posts for later reading:**
+```bash
+gator bookmark <post_url>         # Bookmark a post
+gator unbookmark <post_url>       # Remove a bookmark
+gator bookmarks [limit]           # List your bookmarks
+```
+
+Examples:
+```bash
+gator bookmark "https://blog.boot.dev/golang/benefits-of-go/"   # Bookmark a post
+gator bookmarks                  # List all bookmarks (default 10)
+gator bookmarks 20               # List 20 most recent bookmarks
+gator unbookmark "https://blog.boot.dev/golang/benefits-of-go/" # Remove bookmark
+```
+
+Bookmarks are user-specific and persist across sessions.
+
 ## Example Workflow
 
 ```bash
@@ -206,6 +225,7 @@ gator browse 5
 - ✅ Robust date parsing for various RSS formats
 - ✅ Browse posts with sorting (by date or title), filtering (by feed), and pagination
 - ✅ Full-text search across post titles and descriptions
+- ✅ Bookmark posts for later reading
 - ✅ PostgreSQL database for persistent storage
 
 ## Technologies Used

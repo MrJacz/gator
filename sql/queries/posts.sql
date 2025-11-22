@@ -47,3 +47,9 @@ WHERE feeds.user_id = $1
 ORDER BY posts.published_at DESC
 LIMIT $3;
 
+-- name: GetPostByURL :one
+SELECT posts.* FROM posts
+JOIN feeds ON posts.feed_id = feeds.id
+WHERE feeds.user_id = $1 AND posts.url = $2
+LIMIT 1;
+
