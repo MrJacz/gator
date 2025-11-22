@@ -69,15 +69,17 @@ JOIN feeds ON posts.feed_id = feeds.id
 WHERE feeds.user_id = $1
 ORDER BY posts.published_at DESC
 LIMIT $2
+OFFSET $3
 `
 
 type GetPostsForUserParams struct {
 	UserID uuid.UUID
 	Limit  int32
+	Offset int32
 }
 
 func (q *Queries) GetPostsForUser(ctx context.Context, arg GetPostsForUserParams) ([]Post, error) {
-	rows, err := q.db.QueryContext(ctx, getPostsForUser, arg.UserID, arg.Limit)
+	rows, err := q.db.QueryContext(ctx, getPostsForUser, arg.UserID, arg.Limit, arg.Offset)
 	if err != nil {
 		return nil, err
 	}
@@ -114,16 +116,23 @@ JOIN feeds ON posts.feed_id = feeds.id
 WHERE feeds.user_id = $1 AND feeds.url = $2
 ORDER BY posts.published_at DESC
 LIMIT $3
+OFFSET $4
 `
 
 type GetPostsForUserByFeedParams struct {
 	UserID uuid.UUID
 	Url    string
 	Limit  int32
+	Offset int32
 }
 
 func (q *Queries) GetPostsForUserByFeed(ctx context.Context, arg GetPostsForUserByFeedParams) ([]Post, error) {
-	rows, err := q.db.QueryContext(ctx, getPostsForUserByFeed, arg.UserID, arg.Url, arg.Limit)
+	rows, err := q.db.QueryContext(ctx, getPostsForUserByFeed,
+		arg.UserID,
+		arg.Url,
+		arg.Limit,
+		arg.Offset,
+	)
 	if err != nil {
 		return nil, err
 	}
@@ -160,15 +169,17 @@ JOIN feeds ON posts.feed_id = feeds.id
 WHERE feeds.user_id = $1
 ORDER BY posts.title ASC
 LIMIT $2
+OFFSET $3
 `
 
 type GetPostsForUserSortedByTitleParams struct {
 	UserID uuid.UUID
 	Limit  int32
+	Offset int32
 }
 
 func (q *Queries) GetPostsForUserSortedByTitle(ctx context.Context, arg GetPostsForUserSortedByTitleParams) ([]Post, error) {
-	rows, err := q.db.QueryContext(ctx, getPostsForUserSortedByTitle, arg.UserID, arg.Limit)
+	rows, err := q.db.QueryContext(ctx, getPostsForUserSortedByTitle, arg.UserID, arg.Limit, arg.Offset)
 	if err != nil {
 		return nil, err
 	}

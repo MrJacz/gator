@@ -11,10 +11,11 @@ import (
 
 func handlerBrowse(s *state, cmd command, user database.User) error {
 	limit := 2
+	page := 1 // default page
 	sortBy := "date" // default sort by date
 	var feedURL string
 
-	// Parse arguments: browse [limit] [--sort=title|date] [--feed=url]
+	// Parse arguments: browse [limit] [--sort=title|date] [--feed=url] [--page=N]
 	for _, arg := range cmd.Args {
 		if strings.HasPrefix(arg, "--sort=") {
 			sortBy = strings.TrimPrefix(arg, "--sort=")
@@ -23,6 +24,16 @@ func handlerBrowse(s *state, cmd command, user database.User) error {
 			}
 		} else if strings.HasPrefix(arg, "--feed=") {
 			feedURL = strings.TrimPrefix(arg, "--feed=")
+		} else if strings.HasPrefix(arg, "--page=") {
+			pageStr := strings.TrimPrefix(arg, "--page=")
+			parsedPage, err := strconv.Atoi(pageStr)
+			if err != nil {
+				return fmt.Errorf("invalid page number: %w", err)
+			}
+			if parsedPage < 1 {
+				return fmt.Errorf("page number must be >= 1")
+			}
+			page = parsedPage
 		} else {
 			// Assume it's the limit
 			parsedLimit, err := strconv.Atoi(arg)
@@ -33,6 +44,9 @@ func handlerBrowse(s *state, cmd command, user database.User) error {
 		}
 	}
 
+	// Calculate offset from page number
+	offset := (page - 1) * limit
+
 	var posts []database.Post
 	var err error
 
@@ -42,16 +56,19 @@ func handlerBrowse(s *state, cmd command, user database.User) error {
 			UserID: user.ID,
 			Url:    feedURL,
 			Limit:  int32(limit),
+			Offset: int32(offset),
 		})
 	} else if sortBy == "title" {
 		posts, err = s.db.GetPostsForUserSortedByTitle(context.Background(), database.GetPostsForUserSortedByTitleParams{
 			UserID: user.ID,
 			Limit:  int32(limit),
+			Offset: int32(offset),
 		})
 	} else {
 		posts, err = s.db.GetPostsForUser(context.Background(), database.GetPostsForUserParams{
 			UserID: user.ID,
 			Limit:  int32(limit),
+			Offset: int32(offset),
 		})
 	}
 
@@ -72,6 +89,9 @@ func handlerBrowse(s *state, cmd command, user database.User) error {
 		fmt.Printf(" (sorted by title)")
 	} else {
 		fmt.Printf(" (sorted by date)")
+	}
+	if page > 1 {
+		fmt.Printf(" (page %d)", page)
 	}
 	fmt.Println(":")
 
