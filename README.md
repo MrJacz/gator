@@ -295,6 +295,67 @@ export JWT_SECRET="your-secret-key-here"
 gator server
 ```
 
+### Service Manager (Linux/systemd)
+
+**Install the aggregator as a system service:**
+
+The service manager allows you to run the feed aggregator continuously in the background with automatic restarts on failure. This is only supported on Linux systems with systemd.
+
+```bash
+gator service install [interval] [concurrency]
+```
+
+Examples:
+```bash
+gator service install                # Install with defaults (5m interval, 3 concurrency)
+gator service install 10m 5          # Custom interval and concurrency
+```
+
+This will:
+- Create a systemd service file at `/etc/systemd/system/gator.service`
+- Configure the service to start automatically on system boot
+- Set up automatic restart on failure
+- Configure logging to system journal
+
+**Manage the service:**
+
+```bash
+# Start the service
+sudo systemctl start gator
+
+# Stop the service
+sudo systemctl stop gator
+
+# Check service status
+sudo systemctl status gator
+# Or use the shortcut:
+gator service status
+
+# Enable service to start on boot
+sudo systemctl enable gator
+
+# Disable service from starting on boot
+sudo systemctl disable gator
+
+# View service logs
+sudo journalctl -u gator -f
+# Or use the shortcut:
+gator service logs -f
+
+# View last 100 log entries
+gator service logs -n100
+
+# Uninstall the service
+gator service uninstall
+```
+
+**Benefits:**
+- Runs continuously in the background
+- Automatically restarts if it crashes
+- Starts on system boot (if enabled)
+- Centralized logging via systemd journal
+- No need to keep a terminal session open
+
 ## Example Workflow
 
 ```bash
@@ -326,6 +387,8 @@ gator browse 5
 - ✅ Interactive TUI with keyboard navigation and browser integration
 - ✅ RESTful HTTP API with JWT authentication
 - ✅ Remote access via API endpoints
+- ✅ systemd service manager with automatic restarts
+- ✅ Production-ready deployment options
 - ✅ PostgreSQL database for persistent storage
 
 ## Technologies Used
@@ -338,6 +401,7 @@ gator browse 5
 - **Lipgloss** - Terminal styling
 - **Gorilla Mux** - HTTP routing
 - **JWT** - Token-based authentication
+- **systemd** - Service management (Linux)
 - **RSS/Atom** - Feed parsing
 
 ## License
