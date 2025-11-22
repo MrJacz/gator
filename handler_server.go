@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/mrjacz/gator/api"
+	"github.com/mrjacz/gator/internal/api"
 )
 
 func handlerServer(s *state, cmd command) error {
