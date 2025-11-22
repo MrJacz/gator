@@ -6,14 +6,10 @@ import (
 	"os"
 
 	_ "github.com/lib/pq"
+	"github.com/mrjacz/gator/handlers"
 	"github.com/mrjacz/gator/internal/config"
 	"github.com/mrjacz/gator/internal/database"
 )
-
-type state struct {
-	db  *database.Queries
-	cfg *config.Config
-}
 
 func main() {
 	cfg, err := config.Read()
@@ -28,32 +24,32 @@ func main() {
 	defer db.Close()
 	dbQueries := database.New(db)
 
-	programState := &state{
-		db:  dbQueries,
-		cfg: &cfg,
+	programState := &handlers.State{
+		DB:  dbQueries,
+		Cfg: &cfg,
 	}
 
 	cmds := commands{
-		registeredCommands: make(map[string]func(*state, command) error),
+		registeredCommands: make(map[string]func(*handlers.State, handlers.Command) error),
 	}
-	cmds.register("register", handlerRegister)
-	cmds.register("login", handlerLogin)
-	cmds.register("reset", handlerReset)
-	cmds.register("users", handlerListUsers)
-	cmds.register("agg", handlerAgg)
-	cmds.register("server", handlerServer)
-	cmds.register("service", handlerService)
-	cmds.register("addfeed", middlewareLoggedIn(handlerAddFeed))
-	cmds.register("feeds", handlerListFeeds)
-	cmds.register("follow", middlewareLoggedIn(handlerFollow))
-	cmds.register("following", middlewareLoggedIn(handlerListFeedFollows))
-	cmds.register("unfollow", middlewareLoggedIn(handlerUnfollow))
-	cmds.register("browse", middlewareLoggedIn(handlerBrowse))
-	cmds.register("search", middlewareLoggedIn(handlerSearch))
-	cmds.register("bookmark", middlewareLoggedIn(handlerBookmark))
-	cmds.register("unbookmark", middlewareLoggedIn(handlerUnbookmark))
-	cmds.register("bookmarks", middlewareLoggedIn(handlerListBookmarks))
-	cmds.register("tui", middlewareLoggedIn(handlerTUI))
+	cmds.register("register", handlers.Register)
+	cmds.register("login", handlers.Login)
+	cmds.register("reset", handlers.Reset)
+	cmds.register("users", handlers.ListUsers)
+	cmds.register("agg", handlers.Agg)
+	cmds.register("server", handlers.Server)
+	cmds.register("service", handlers.Service)
+	cmds.register("addfeed", middlewareLoggedIn(handlers.AddFeed))
+	cmds.register("feeds", handlers.ListFeeds)
+	cmds.register("follow", middlewareLoggedIn(handlers.Follow))
+	cmds.register("following", middlewareLoggedIn(handlers.ListFeedFollows))
+	cmds.register("unfollow", middlewareLoggedIn(handlers.Unfollow))
+	cmds.register("browse", middlewareLoggedIn(handlers.Browse))
+	cmds.register("search", middlewareLoggedIn(handlers.Search))
+	cmds.register("bookmark", middlewareLoggedIn(handlers.Bookmark))
+	cmds.register("unbookmark", middlewareLoggedIn(handlers.Unbookmark))
+	cmds.register("bookmarks", middlewareLoggedIn(handlers.ListBookmarks))
+	cmds.register("tui", middlewareLoggedIn(handlers.TUI))
 
 	if len(os.Args) < 2 {
 		log.Fatal("Usage: cli <command> [args...]")
@@ -62,7 +58,7 @@ func main() {
 	cmdName := os.Args[1]
 	cmdArgs := os.Args[2:]
 
-	err = cmds.run(programState, command{Name: cmdName, Args: cmdArgs})
+	err = cmds.run(programState, handlers.Command{Name: cmdName, Args: cmdArgs})
 	if err != nil {
 		log.Fatal(err)
 	}

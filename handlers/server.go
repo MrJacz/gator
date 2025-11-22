@@ -1,4 +1,4 @@
-package main
+package handlers
 
 import (
 	"fmt"
@@ -9,7 +9,7 @@ import (
 	"github.com/mrjacz/gator/internal/api"
 )
 
-func handlerServer(s *state, cmd command) error {
+func Server(s *State, cmd Command) error {
 	port := "8080"
 	if len(cmd.Args) > 0 {
 		port = cmd.Args[0]
@@ -21,7 +21,7 @@ func handlerServer(s *state, cmd command) error {
 		log.Println("Set JWT_SECRET environment variable for production use")
 	}
 
-	server := api.NewServer(s.db)
+	server := api.NewServer(s.DB)
 	router := server.SetupRouter()
 
 	addr := fmt.Sprintf(":%s", port)

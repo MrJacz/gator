@@ -1,4 +1,4 @@
-package main
+package handlers
 
 import (
 	"context"
@@ -169,14 +169,14 @@ func openBrowser(url string) error {
 	return cmd.Start()
 }
 
-func handlerTUI(s *state, cmd command, user database.User) error {
+func TUI(s *State, cmd Command, user database.User) error {
 	limit := 20
 
 	if len(cmd.Args) > 0 {
 		return fmt.Errorf("usage: %s (no arguments)", cmd.Name)
 	}
 
-	posts, err := s.db.GetPostsForUser(context.Background(), database.GetPostsForUserParams{
+	posts, err := s.DB.GetPostsForUser(context.Background(), database.GetPostsForUserParams{
 		UserID: user.ID,
 		Limit:  int32(limit),
 		Offset: 0,

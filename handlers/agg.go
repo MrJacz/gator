@@ -1,4 +1,4 @@
-package main
+package handlers
 
 import (
 	"context"
@@ -11,9 +11,10 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/mrjacz/gator/internal/database"
+	"github.com/mrjacz/gator/internal/rss"
 )
 
-func handlerAgg(s *state, cmd command) error {
+func Agg(s *State, cmd Command) error {
 	if len(cmd.Args) < 1 {
 		return fmt.Errorf("usage: %v <time_between_reqs> [--concurrency=N]", cmd.Name)
 	}
@@ -47,8 +48,8 @@ func handlerAgg(s *state, cmd command) error {
 	}
 }
 
-func scrapeFeeds(s *state, concurrency int) {
-	feeds, err := s.db.GetNextFeedsToFetch(context.Background(), int32(concurrency))
+func scrapeFeeds(s *State, concurrency int) {
+	feeds, err := s.DB.GetNextFeedsToFetch(context.Background(), int32(concurrency))
 	if err != nil {
 		log.Println("Couldn't get next feeds to fetch", err)
 		return
@@ -66,7 +67,7 @@ func scrapeFeeds(s *state, concurrency int) {
 		wg.Add(1)
 		go func(f database.Feed) {
 			defer wg.Done()
-			scrapeFeed(s.db, f)
+			scrapeFeed(s.DB, f)
 		}(feed)
 	}
 
@@ -102,7 +103,7 @@ func scrapeFeed(db *database.Queries, feed database.Feed) {
 		return
 	}
 
-	feedData, err := fetchFeed(context.Background(), feed.Url)
+	feedData, err := rss.FetchFeed(context.Background(), feed.Url)
 	if err != nil {
 		log.Printf("Couldn't collect feed %s: %v", feed.Name, err)
 		return

@@ -1,4 +1,4 @@
-package main
+package handlers
 
 import (
 	"fmt"
@@ -38,7 +38,7 @@ type ServiceConfig struct {
 	Concurrency string
 }
 
-func handlerServiceInstall(s *state, cmd command) error {
+func serviceInstall(s *State, cmd Command) error {
 	if runtime.GOOS != "linux" {
 		return fmt.Errorf("service installation is only supported on Linux with systemd")
 	}
@@ -132,7 +132,7 @@ func handlerServiceInstall(s *state, cmd command) error {
 	}
 
 	fmt.Println("\nService installed successfully!")
-	fmt.Println("\nUseful commands:")
+	fmt.Println("\nUseful Commands:")
 	fmt.Println("  sudo systemctl start gator       # Start the service")
 	fmt.Println("  sudo systemctl stop gator        # Stop the service")
 	fmt.Println("  sudo systemctl status gator      # Check service status")
@@ -144,7 +144,7 @@ func handlerServiceInstall(s *state, cmd command) error {
 	return nil
 }
 
-func handlerServiceUninstall(s *state, cmd command) error {
+func serviceUninstall(s *State, cmd Command) error {
 	if runtime.GOOS != "linux" {
 		return fmt.Errorf("service management is only supported on Linux with systemd")
 	}
@@ -189,7 +189,7 @@ func handlerServiceUninstall(s *state, cmd command) error {
 	return nil
 }
 
-func handlerServiceStatus(s *state, cmd command) error {
+func serviceStatus(s *State, cmd Command) error {
 	if runtime.GOOS != "linux" {
 		return fmt.Errorf("service management is only supported on Linux with systemd")
 	}
@@ -197,12 +197,12 @@ func handlerServiceStatus(s *state, cmd command) error {
 	statusCmd := exec.Command("systemctl", "status", "gator")
 	statusCmd.Stdout = os.Stdout
 	statusCmd.Stderr = os.Stderr
-	statusCmd.Run() // Ignore exit code, status command returns non-zero when service is stopped
+	statusCmd.Run() // Ignore exit code, status Command returns non-zero when service is stopped
 
 	return nil
 }
 
-func handlerServiceLogs(s *state, cmd command) error {
+func serviceLogs(s *State, cmd Command) error {
 	if runtime.GOOS != "linux" {
 		return fmt.Errorf("service management is only supported on Linux with systemd")
 	}
@@ -231,7 +231,7 @@ func handlerServiceLogs(s *state, cmd command) error {
 	return logsCmd.Run()
 }
 
-func handlerService(s *state, cmd command) error {
+func Service(s *State, cmd Command) error {
 	if len(cmd.Args) == 0 {
 		return fmt.Errorf("usage: %s <install|uninstall|status|logs> [args...]", cmd.Name)
 	}
@@ -241,13 +241,13 @@ func handlerService(s *state, cmd command) error {
 
 	switch subcommand {
 	case "install":
-		return handlerServiceInstall(s, command{Name: "service install", Args: subArgs})
+		return serviceInstall(s, Command{Name: "service install", Args: subArgs})
 	case "uninstall":
-		return handlerServiceUninstall(s, command{Name: "service uninstall", Args: subArgs})
+		return serviceUninstall(s, Command{Name: "service uninstall", Args: subArgs})
 	case "status":
-		return handlerServiceStatus(s, command{Name: "service status", Args: subArgs})
+		return serviceStatus(s, Command{Name: "service status", Args: subArgs})
 	case "logs":
-		return handlerServiceLogs(s, command{Name: "service logs", Args: subArgs})
+		return serviceLogs(s, Command{Name: "service logs", Args: subArgs})
 	default:
 		return fmt.Errorf("unknown subcommand: %s\nAvailable: install, uninstall, status, logs", subcommand)
 	}

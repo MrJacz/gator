@@ -1,4 +1,4 @@
-package main
+package handlers
 
 import (
 	"context"
@@ -8,7 +8,7 @@ import (
 	"github.com/mrjacz/gator/internal/database"
 )
 
-func handlerSearch(s *state, cmd command, user database.User) error {
+func Search(s *State, cmd Command, user database.User) error {
 	if len(cmd.Args) < 1 {
 		return fmt.Errorf("usage: %s <search_term> [limit]", cmd.Name)
 	}
@@ -28,7 +28,7 @@ func handlerSearch(s *state, cmd command, user database.User) error {
 	// Add wildcards for ILIKE pattern matching
 	searchPattern := "%" + searchTerm + "%"
 
-	posts, err := s.db.SearchPostsForUser(context.Background(), database.SearchPostsForUserParams{
+	posts, err := s.DB.SearchPostsForUser(context.Background(), database.SearchPostsForUserParams{
 		UserID: user.ID,
 		Title:  searchPattern,
 		Limit:  int32(limit),

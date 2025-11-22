@@ -1,4 +1,4 @@
-package main
+package handlers
 
 import (
 	"context"
@@ -9,7 +9,7 @@ import (
 	"github.com/mrjacz/gator/internal/database"
 )
 
-func handlerBrowse(s *state, cmd command, user database.User) error {
+func Browse(s *State, cmd Command, user database.User) error {
 	limit := 2
 	page := 1 // default page
 	sortBy := "date" // default sort by date
@@ -52,20 +52,20 @@ func handlerBrowse(s *state, cmd command, user database.User) error {
 
 	// Fetch posts based on filters
 	if feedURL != "" {
-		posts, err = s.db.GetPostsForUserByFeed(context.Background(), database.GetPostsForUserByFeedParams{
+		posts, err = s.DB.GetPostsForUserByFeed(context.Background(), database.GetPostsForUserByFeedParams{
 			UserID: user.ID,
 			Url:    feedURL,
 			Limit:  int32(limit),
 			Offset: int32(offset),
 		})
 	} else if sortBy == "title" {
-		posts, err = s.db.GetPostsForUserSortedByTitle(context.Background(), database.GetPostsForUserSortedByTitleParams{
+		posts, err = s.DB.GetPostsForUserSortedByTitle(context.Background(), database.GetPostsForUserSortedByTitleParams{
 			UserID: user.ID,
 			Limit:  int32(limit),
 			Offset: int32(offset),
 		})
 	} else {
-		posts, err = s.db.GetPostsForUser(context.Background(), database.GetPostsForUserParams{
+		posts, err = s.DB.GetPostsForUser(context.Background(), database.GetPostsForUserParams{
 			UserID: user.ID,
 			Limit:  int32(limit),
 			Offset: int32(offset),

@@ -1,4 +1,4 @@
-package main
+package handlers
 
 import (
 	"context"
@@ -9,17 +9,17 @@ import (
 	"github.com/mrjacz/gator/internal/database"
 )
 
-func handlerFollow(s *state, cmd command, user database.User) error {
+func Follow(s *State, cmd Command, user database.User) error {
 	if len(cmd.Args) != 1 {
 		return fmt.Errorf("usage: %s <feed_url>", cmd.Name)
 	}
 
-	feed, err := s.db.GetFeedByURL(context.Background(), cmd.Args[0])
+	feed, err := s.DB.GetFeedByURL(context.Background(), cmd.Args[0])
 	if err != nil {
 		return fmt.Errorf("couldn't get feed: %w", err)
 	}
 
-	ffRow, err := s.db.CreateFeedFollow(context.Background(), database.CreateFeedFollowParams{
+	ffRow, err := s.DB.CreateFeedFollow(context.Background(), database.CreateFeedFollowParams{
 		ID:        uuid.New(),
 		CreatedAt: time.Now().UTC(),
 		UpdatedAt: time.Now().UTC(),
@@ -35,8 +35,8 @@ func handlerFollow(s *state, cmd command, user database.User) error {
 	return nil
 }
 
-func handlerListFeedFollows(s *state, cmd command, user database.User) error {
-	feedFollows, err := s.db.GetFeedFollowsForUser(context.Background(), user.ID)
+func ListFeedFollows(s *State, cmd Command, user database.User) error {
+	feedFollows, err := s.DB.GetFeedFollowsForUser(context.Background(), user.ID)
 	if err != nil {
 		return fmt.Errorf("couldn't get feed follows: %w", err)
 	}
@@ -54,17 +54,17 @@ func handlerListFeedFollows(s *state, cmd command, user database.User) error {
 	return nil
 }
 
-func handlerUnfollow(s *state, cmd command, user database.User) error {
+func Unfollow(s *State, cmd Command, user database.User) error {
 	if len(cmd.Args) != 1 {
 		return fmt.Errorf("usage: %s <feed_url>", cmd.Name)
 	}
 
-	feed, err := s.db.GetFeedByURL(context.Background(), cmd.Args[0])
+	feed, err := s.DB.GetFeedByURL(context.Background(), cmd.Args[0])
 	if err != nil {
 		return fmt.Errorf("couldn't get feed: %w", err)
 	}
 
-	err = s.db.DeleteFeedFollow(context.Background(), database.DeleteFeedFollowParams{
+	err = s.DB.DeleteFeedFollow(context.Background(), database.DeleteFeedFollowParams{
 		UserID: user.ID,
 		FeedID: feed.ID,
 	})

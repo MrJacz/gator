@@ -1,4 +1,4 @@
-package main
+package handlers
 
 import (
 	"context"
@@ -10,7 +10,7 @@ import (
 	"github.com/mrjacz/gator/internal/database"
 )
 
-func handlerBookmark(s *state, cmd command, user database.User) error {
+func Bookmark(s *State, cmd Command, user database.User) error {
 	if len(cmd.Args) != 1 {
 		return fmt.Errorf("usage: %s <post_url>", cmd.Name)
 	}
@@ -18,7 +18,7 @@ func handlerBookmark(s *state, cmd command, user database.User) error {
 	postURL := cmd.Args[0]
 
 	// Find the post by URL
-	post, err := s.db.GetPostByURL(context.Background(), database.GetPostByURLParams{
+	post, err := s.DB.GetPostByURL(context.Background(), database.GetPostByURLParams{
 		UserID: user.ID,
 		Url:    postURL,
 	})
@@ -27,7 +27,7 @@ func handlerBookmark(s *state, cmd command, user database.User) error {
 	}
 
 	// Check if already bookmarked
-	isBookmarked, err := s.db.IsPostBookmarked(context.Background(), database.IsPostBookmarkedParams{
+	isBookmarked, err := s.DB.IsPostBookmarked(context.Background(), database.IsPostBookmarkedParams{
 		UserID: user.ID,
 		PostID: post.ID,
 	})
@@ -40,7 +40,7 @@ func handlerBookmark(s *state, cmd command, user database.User) error {
 	}
 
 	// Create bookmark
-	_, err = s.db.CreateBookmark(context.Background(), database.CreateBookmarkParams{
+	_, err = s.DB.CreateBookmark(context.Background(), database.CreateBookmarkParams{
 		ID:        uuid.New(),
 		CreatedAt: time.Now(),
 		UpdatedAt: time.Now(),
@@ -55,7 +55,7 @@ func handlerBookmark(s *state, cmd command, user database.User) error {
 	return nil
 }
 
-func handlerUnbookmark(s *state, cmd command, user database.User) error {
+func Unbookmark(s *State, cmd Command, user database.User) error {
 	if len(cmd.Args) != 1 {
 		return fmt.Errorf("usage: %s <post_url>", cmd.Name)
 	}
@@ -63,7 +63,7 @@ func handlerUnbookmark(s *state, cmd command, user database.User) error {
 	postURL := cmd.Args[0]
 
 	// Find the post by URL
-	post, err := s.db.GetPostByURL(context.Background(), database.GetPostByURLParams{
+	post, err := s.DB.GetPostByURL(context.Background(), database.GetPostByURLParams{
 		UserID: user.ID,
 		Url:    postURL,
 	})
@@ -72,7 +72,7 @@ func handlerUnbookmark(s *state, cmd command, user database.User) error {
 	}
 
 	// Delete bookmark
-	err = s.db.DeleteBookmark(context.Background(), database.DeleteBookmarkParams{
+	err = s.DB.DeleteBookmark(context.Background(), database.DeleteBookmarkParams{
 		UserID: user.ID,
 		PostID: post.ID,
 	})
@@ -84,7 +84,7 @@ func handlerUnbookmark(s *state, cmd command, user database.User) error {
 	return nil
 }
 
-func handlerListBookmarks(s *state, cmd command, user database.User) error {
+func ListBookmarks(s *State, cmd Command, user database.User) error {
 	limit := 10 // default limit
 
 	if len(cmd.Args) > 0 {
@@ -95,7 +95,7 @@ func handlerListBookmarks(s *state, cmd command, user database.User) error {
 		limit = parsedLimit
 	}
 
-	posts, err := s.db.GetBookmarksForUser(context.Background(), database.GetBookmarksForUserParams{
+	posts, err := s.DB.GetBookmarksForUser(context.Background(), database.GetBookmarksForUserParams{
 		UserID: user.ID,
 		Limit:  int32(limit),
 	})
