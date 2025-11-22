@@ -198,6 +198,24 @@ gator unbookmark "https://blog.boot.dev/golang/benefits-of-go/" # Remove bookmar
 
 Bookmarks are user-specific and persist across sessions.
 
+### Interactive TUI
+
+**Launch the interactive terminal UI:**
+```bash
+gator tui
+```
+
+The TUI provides an interactive interface for browsing posts with keyboard navigation:
+
+- **↑/k** - Move cursor up
+- **↓/j** - Move cursor down
+- **Enter** - View post details
+- **o** - Open post URL in your default browser
+- **Esc** - Return to list view (when viewing details)
+- **q** - Quit the TUI
+
+The TUI displays the 20 most recent posts and allows you to navigate through them, view full details, and open articles in your browser with a single keypress.
+
 ## Example Workflow
 
 ```bash
@@ -226,6 +244,7 @@ gator browse 5
 - ✅ Browse posts with sorting (by date or title), filtering (by feed), and pagination
 - ✅ Full-text search across post titles and descriptions
 - ✅ Bookmark posts for later reading
+- ✅ Interactive TUI with keyboard navigation and browser integration
 - ✅ PostgreSQL database for persistent storage
 
 ## Technologies Used
@@ -234,6 +253,8 @@ gator browse 5
 - **PostgreSQL** - Database
 - **sqlc** - Type-safe SQL query generation
 - **goose** - Database migrations
+- **Bubbletea** - Terminal UI framework
+- **Lipgloss** - Terminal styling
 - **RSS/Atom** - Feed parsing
 
 ## License
