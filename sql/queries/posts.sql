@@ -36,3 +36,14 @@ ORDER BY posts.title ASC
 LIMIT $2
 OFFSET $3;
 
+-- name: SearchPostsForUser :many
+SELECT posts.* FROM posts
+JOIN feeds ON posts.feed_id = feeds.id
+WHERE feeds.user_id = $1
+  AND (
+    posts.title ILIKE $2
+    OR posts.description ILIKE $2
+  )
+ORDER BY posts.published_at DESC
+LIMIT $3;
+

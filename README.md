@@ -163,6 +163,22 @@ gator browse 5 --sort=title --feed="https://blog.boot.dev/index.xml"  # Combine 
 
 Posts are displayed with their title, URL, publication date, and description.
 
+### Search Posts
+
+**Search for posts by keyword:**
+```bash
+gator search <search_term> [limit]
+```
+
+Examples:
+```bash
+gator search "golang"           # Search for posts containing "golang" (default 10 results)
+gator search "Python" 20        # Search for posts containing "Python", show 20 results
+gator search "API design" 5     # Search for posts about "API design", show 5 results
+```
+
+The search command performs case-insensitive searches across both post titles and descriptions, and displays matching posts with context snippets.
+
 ## Example Workflow
 
 ```bash
@@ -189,6 +205,7 @@ gator browse 5
 - ✅ Duplicate post detection
 - ✅ Robust date parsing for various RSS formats
 - ✅ Browse posts with sorting (by date or title), filtering (by feed), and pagination
+- ✅ Full-text search across post titles and descriptions
 - ✅ PostgreSQL database for persistent storage
 
 ## Technologies Used
