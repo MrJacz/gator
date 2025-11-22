@@ -130,16 +130,18 @@ gator following
 
 **Start the aggregator (fetch posts from feeds):**
 ```bash
-gator agg <time_between_requests>
+gator agg <time_between_requests> [--concurrency=N]
 ```
 
-Example:
+Examples:
 ```bash
-gator agg 1m  # Fetch feeds every 1 minute
-gator agg 30s # Fetch feeds every 30 seconds
+gator agg 1m                    # Fetch 1 feed every 1 minute (sequential)
+gator agg 30s                   # Fetch 1 feed every 30 seconds
+gator agg 10s --concurrency=5   # Fetch 5 feeds concurrently every 10 seconds
+gator agg 1m --concurrency=10   # Fetch 10 feeds concurrently every 1 minute
 ```
 
-The aggregator will continuously fetch posts from all feeds. Press `Ctrl+C` to stop it.
+The aggregator will continuously fetch posts from feeds. Use `--concurrency` to fetch multiple feeds simultaneously for faster updates. Press `Ctrl+C` to stop it.
 
 ### Browse Posts
 
@@ -183,7 +185,7 @@ gator browse 5
 
 - ✅ Multi-user support with simple authentication
 - ✅ Follow multiple RSS feeds
-- ✅ Automatic feed aggregation with configurable intervals
+- ✅ Automatic feed aggregation with configurable intervals and concurrent fetching
 - ✅ Duplicate post detection
 - ✅ Robust date parsing for various RSS formats
 - ✅ Browse posts with sorting (by date or title), filtering (by feed), and pagination

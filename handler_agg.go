@@ -4,7 +4,9 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"strconv"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/google/uuid"
@@ -12,8 +14,8 @@ import (
 )
 
 func handlerAgg(s *state, cmd command) error {
-	if len(cmd.Args) < 1 || len(cmd.Args) > 2 {
-		return fmt.Errorf("usage: %v <time_between_reqs>", cmd.Name)
+	if len(cmd.Args) < 1 {
+		return fmt.Errorf("usage: %v <time_between_reqs> [--concurrency=N]", cmd.Name)
 	}
 
 	timeBetweenRequests, err := time.ParseDuration(cmd.Args[0])
@@ -21,23 +23,55 @@ func handlerAgg(s *state, cmd command) error {
 		return fmt.Errorf("invalid duration: %w", err)
 	}
 
-	log.Printf("Collecting feeds every %s...", timeBetweenRequests)
+	concurrency := 1 // default: fetch 1 feed at a time
+	for _, arg := range cmd.Args[1:] {
+		if strings.HasPrefix(arg, "--concurrency=") {
+			concStr := strings.TrimPrefix(arg, "--concurrency=")
+			parsedConc, err := strconv.Atoi(concStr)
+			if err != nil {
+				return fmt.Errorf("invalid concurrency value: %w", err)
+			}
+			if parsedConc < 1 {
+				return fmt.Errorf("concurrency must be >= 1")
+			}
+			concurrency = parsedConc
+		}
+	}
+
+	log.Printf("Collecting feeds every %s with concurrency %d...", timeBetweenRequests, concurrency)
 
 	ticker := time.NewTicker(timeBetweenRequests)
 
 	for ; ; <-ticker.C {
-		scrapeFeeds(s)
+		scrapeFeeds(s, concurrency)
 	}
 }
 
-func scrapeFeeds(s *state) {
-	feed, err := s.db.GetNextFeedToFetch(context.Background())
+func scrapeFeeds(s *state, concurrency int) {
+	feeds, err := s.db.GetNextFeedsToFetch(context.Background(), int32(concurrency))
 	if err != nil {
 		log.Println("Couldn't get next feeds to fetch", err)
 		return
 	}
-	log.Println("Found a feed to fetch!")
-	scrapeFeed(s.db, feed)
+
+	if len(feeds) == 0 {
+		log.Println("No feeds to fetch")
+		return
+	}
+
+	log.Printf("Found %d feed(s) to fetch!", len(feeds))
+
+	var wg sync.WaitGroup
+	for _, feed := range feeds {
+		wg.Add(1)
+		go func(f database.Feed) {
+			defer wg.Done()
+			scrapeFeed(s.db, f)
+		}(feed)
+	}
+
+	wg.Wait()
+	log.Println("Finished fetching all feeds in this batch")
 }
 
 func parsePublishedAt(pubDate string) (time.Time, error) {
